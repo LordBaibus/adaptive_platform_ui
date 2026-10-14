@@ -33,6 +33,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const int _homeTab = 0;
   static const int _tasksTab = 1;
+  static const int _profileTab = 2;
 
   final TaskController _tasks = TaskController();
   int _tab = _homeTab;
@@ -178,7 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
               tintColor: CupertinoColors.label.resolveFrom(context),
               onPressed: _newTask,
             ),
-          // Action menu (popup) in the app bar.
+          // Action menu (popup) in the app bar; hidden on the Profile tab.
+          if (_tab != _profileTab)
           AdaptiveAppBarAction(
             iosSymbol: AppIcons.moreSymbol,
             icon: AppIcons.more,
