@@ -1,11 +1,13 @@
 import 'package:adaptive_platform_ui/adaptive_platform_ui.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:skeletonizer/skeletonizer.dart' show Bone, Skeleton;
 
 import '../core/app_icons.dart';
 import '../core/app_theme.dart';
 import '../core/formatters.dart';
 import '../models/task.dart';
 import '../services/task_controller.dart';
+import '../widgets/app_skeleton.dart';
 import '../widgets/progress_ring.dart';
 
 /// Home tab: progress ring, status legend, "Create Daily Task" and the most
@@ -31,7 +33,10 @@ class HomeView extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: controller.load),
-        SliverToBoxAdapter(
+        AppSkeleton(
+          sliver: true,
+          enabled: controller.loading,
+          child: SliverToBoxAdapter(
           child: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
@@ -42,11 +47,13 @@ class HomeView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                      child: ProgressRing(
-                        todo: controller.count(TaskStatus.todo),
-                        inProcess: controller.count(TaskStatus.inProcess),
-                        completed: controller.count(TaskStatus.completed),
-                      ),
+                      child: controller.loading
+                          ? const Bone.circle(size: 220)
+                          : ProgressRing(
+                              todo: controller.count(TaskStatus.todo),
+                              inProcess: controller.count(TaskStatus.inProcess),
+                              completed: controller.count(TaskStatus.completed),
+                            ),
                     ),
                     const SizedBox(height: 24),
                     GlassCard(
@@ -92,11 +99,13 @@ class HomeView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        AdaptiveButton.icon(
-                          onPressed: onCreate,
-                          icon: AppIcons.add,
-                          color: AppColors.orange,
-                          size: AdaptiveButtonSize.large,
+                        Skeleton.ignore(
+                          child: AdaptiveButton.icon(
+                            onPressed: onCreate,
+                            icon: AppIcons.add,
+                            color: AppColors.orange,
+                            size: AdaptiveButtonSize.large,
+                          ),
                         ),
                       ],
                     ),
@@ -115,6 +124,7 @@ class HomeView extends StatelessWidget {
               ),
             ),
           ),
+        ),
         ),
       ],
     );

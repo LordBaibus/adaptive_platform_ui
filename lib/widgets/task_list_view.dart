@@ -1,10 +1,12 @@
 import 'package:adaptive_platform_ui/adaptive_platform_ui.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:skeletonizer/skeletonizer.dart' show Skeleton;
 
 import '../core/app_icons.dart';
 import '../core/app_theme.dart';
 import '../models/task.dart';
 import '../services/task_controller.dart';
+import 'app_skeleton.dart';
 import 'dialogs.dart';
 
 /// "My Task": segmented filter plus a card per task with a progress bar.
@@ -27,14 +29,24 @@ class TaskListView extends StatefulWidget {
 class _TaskListViewState extends State<TaskListView> {
   TaskStatus _filter = TaskStatus.inProcess;
 
+  /// Fake cards used for the skeleton while the first load is running.
+  static final List<Task> _placeholders = List.generate(
+    4,
+    (i) => Task(
+      id: 'placeholder-$i',
+      title: 'Loading task title here',
+      dueDate: DateTime(2000),
+      createdAt: DateTime(2000),
+      estimatedHours: 50,
+      progress: 45,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
 
-    if (controller.loading && controller.tasks.isEmpty) {
-      return const Center(child: CupertinoActivityIndicator(radius: 14));
-    }
-    if (controller.error != null && controller.tasks.isEmpty) {
+    if (controller.error != null && controller.tasks.isEmpty && !controller.loading) {
       return _Message(
         text: controller.error!,
         action: AdaptiveButton(
@@ -45,7 +57,11 @@ class _TaskListViewState extends State<TaskListView> {
       );
     }
 
-    final tasks = controller.byStatus(_filter);
+    final loading = controller.loading;
+    final real = controller.byStatus(_filter);
+    // First load: show fake cards as skeletons. Refresh: skeleton over the
+    // real cards.
+    final tasks = (loading && real.isEmpty) ? _placeholders : real;
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
@@ -61,26 +77,29 @@ class _TaskListViewState extends State<TaskListView> {
             ),
           ),
         ),
-        if (tasks.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: _Message(text: 'No ${_filter.label.toLowerCase()} tasks.'),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-            sliver: SliverList.separated(
-              itemCount: tasks.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, index) => _TaskCard(
-                task: tasks[index],
-                selected: tasks[index].id == widget.selectedId,
-                controller: controller,
-                onOpen: widget.onOpen,
-                parentContext: context,
-              ),
-            ),
-          ),
+        AppSkeleton(
+          sliver: true,
+          enabled: loading,
+          child: tasks.isEmpty
+              ? SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _Message(text: 'No ${_filter.label.toLowerCase()} tasks.'),
+                )
+              : SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                  sliver: SliverList.separated(
+                    itemCount: tasks.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (_, index) => _TaskCard(
+                      task: tasks[index],
+                      selected: tasks[index].id == widget.selectedId,
+                      controller: controller,
+                      onOpen: widget.onOpen,
+                      parentContext: context,
+                    ),
+                  ),
+                ),
+        ),
       ],
     );
   }
@@ -215,7 +234,8 @@ class _TaskCard extends StatelessWidget {
                 ),
               ),
             ),
-            AdaptivePopupMenuButton.icon<String>(
+            Skeleton.ignore(
+              child: AdaptivePopupMenuButton.icon<String>(
               icon: AppIcons.pick(AppIcons.kebabSymbol, AppIcons.kebab),
               size: 36,
               buttonStyle: PopupButtonStyle.plain,
@@ -229,6 +249,7 @@ class _TaskCard extends StatelessWidget {
                   ),
               ],
               onSelected: (index, item) => entries[index].run(),
+              ),
             ),
           ],
         ),
