@@ -81,3 +81,6 @@ drop policy if exists "tasks_delete_own" on public.tasks;
 create policy "tasks_delete_own" on public.tasks
   for delete to authenticated
   using ((select auth.uid()) = user_id);
+
+-- Make the API pick up new columns immediately
+notify pgrst, 'reload schema';
