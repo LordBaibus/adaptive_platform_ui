@@ -270,6 +270,9 @@ class _TaskEditorState extends State<TaskEditor> {
                 labels: [for (final s in TaskStatus.values) s.label],
                 selectedIndex: TaskStatus.values.indexOf(_status),
                 onValueChanged: (i) => _setStatus(TaskStatus.values[i]),
+                color: AppColors.orange,
+                textColor: CupertinoColors.label.resolveFrom(context),
+                selectedTextColor: CupertinoColors.white,
               ),
               if (_status == TaskStatus.inProcess) ...[
                 _label('Progress  ·  $_progress%'),

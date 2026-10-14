@@ -55,16 +55,25 @@ class AppBackdrop extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.background.resolveFrom(context),
+        // Soft glow on the right edge, kept away from the top and bottom so the
+        // page is the same colour as the app bar and bottom bar (no seams).
         gradient: RadialGradient(
-          center: const Alignment(0.9, -0.9),
-          radius: 1.1,
+          center: const Alignment(1.1, 0.0),
+          radius: 0.8,
           colors: [
-            AppColors.orange.withValues(alpha: dark ? 0.20 : 0.22),
+            AppColors.orange.withValues(alpha: dark ? 0.16 : 0.18),
             AppColors.orange.withValues(alpha: 0),
           ],
         ),
       ),
-      child: SizedBox.expand(child: child),
+      child: SizedBox.expand(
+        // Material's Scaffold resets the default text style, so set the text
+        // colour here to keep text readable on every platform.
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: CupertinoColors.label.resolveFrom(context)),
+          child: child,
+        ),
+      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/supabase_config.dart';
 import 'core/app_theme.dart';
+import 'core/material_bridge.dart';
 import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/app_settings.dart';
@@ -54,14 +55,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveApp(
-      title: 'Adaptive Tasks',
-      // Applies dark / light to every screen (including pushed ones) the same
-      // way the login screen does: override the brightness that the
-      // Cupertino colours, glass cards and text resolve against.
-      builder: (context, child) => ValueListenableBuilder<bool>(
-        valueListenable: AppSettings.darkMode,
-        builder: (context, dark, _) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppSettings.darkMode,
+      builder: (context, dark, _) => AdaptiveApp(
+        title: 'Adaptive Tasks',
+        // Material theme for Android / Windows / Linux / web (see
+        // lib/core/material_bridge.dart for why this is needed).
+        themeMode: appThemeMode(dark),
+        materialLightTheme: appMaterialTheme(dark: false),
+        materialDarkTheme: appMaterialTheme(dark: true),
+        // Applies dark / light to every screen (including pushed ones) the same
+        // way the login screen does: override the brightness that the
+        // Cupertino colours, glass cards and text resolve against.
+        builder: (context, child) {
           final brightness = dark ? Brightness.dark : Brightness.light;
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(platformBrightness: brightness),
@@ -79,18 +85,18 @@ class MyApp extends StatelessWidget {
             ),
           );
         },
+        cupertinoLightTheme: const CupertinoThemeData(
+          primaryColor: AppColors.orange,
+          brightness: Brightness.light,
+        ),
+        cupertinoDarkTheme: const CupertinoThemeData(
+          primaryColor: AppColors.orange,
+          brightness: Brightness.dark,
+        ),
+        home: SupabaseConfig.isConfigured
+            ? const AuthGate()
+            : const _SetupRequiredScreen(),
       ),
-      cupertinoLightTheme: const CupertinoThemeData(
-        primaryColor: AppColors.orange,
-        brightness: Brightness.light,
-      ),
-      cupertinoDarkTheme: const CupertinoThemeData(
-        primaryColor: AppColors.orange,
-        brightness: Brightness.dark,
-      ),
-      home: SupabaseConfig.isConfigured
-          ? const AuthGate()
-          : const _SetupRequiredScreen(),
     );
   }
 }
