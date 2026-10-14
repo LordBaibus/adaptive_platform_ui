@@ -79,6 +79,18 @@ class _TaskEditorState extends State<TaskEditor> {
     });
   }
 
+  bool _askedComplete = false;
+
+  Future<void> _offerComplete() async {
+    final name = _title.text.trim().isEmpty ? 'This task' : _title.text.trim();
+    final yes = await confirmComplete(context, name);
+    if (!mounted || !yes) return;
+    setState(() {
+      _status = TaskStatus.completed;
+      _progress = 100;
+    });
+  }
+
   Future<void> _save() async {
     final title = _title.text.trim();
     if (title.isEmpty) {
@@ -282,7 +294,16 @@ class _TaskEditorState extends State<TaskEditor> {
                   max: 100,
                   divisions: 20,
                   activeColor: AppColors.orange,
-                  onChanged: (v) => setState(() => _progress = v.round()),
+                  onChanged: (v) {
+                    final value = v.round();
+                    setState(() => _progress = value);
+                    if (value < 100) {
+                      _askedComplete = false;
+                    } else if (!_askedComplete) {
+                      _askedComplete = true;
+                      _offerComplete();
+                    }
+                  },
                 ),
               ],
               _label('Estimated time  ·  $_hours Hrs'),

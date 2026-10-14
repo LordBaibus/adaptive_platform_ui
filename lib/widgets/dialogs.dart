@@ -5,7 +5,33 @@ import 'package:flutter/widgets.dart';
 
 /// Native-feeling confirmation (iOS alert / Android dialog) that resolves to
 /// true only when the user taps Delete.
-Future<bool> confirmDelete(BuildContext context, String name) {
+Future<bool> confirmDelete(BuildContext context, String name) => _confirm(
+      context,
+      title: 'Delete task?',
+      message: '"$name" will be permanently removed.',
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+      destructive: true,
+    );
+
+/// Asks whether a task that just reached 100% should be marked completed.
+Future<bool> confirmComplete(BuildContext context, String name) => _confirm(
+      context,
+      title: 'Mark as completed?',
+      message: '"$name" is at 100%. Do you want to mark it as completed?',
+      confirmLabel: 'Mark completed',
+      cancelLabel: 'Not yet',
+      destructive: false,
+    );
+
+Future<bool> _confirm(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmLabel,
+  required String cancelLabel,
+  required bool destructive,
+}) {
   final result = Completer<bool>();
 
   void finish(bool value) {
@@ -14,17 +40,19 @@ Future<bool> confirmDelete(BuildContext context, String name) {
 
   AdaptiveAlertDialog.show(
     context: context,
-    title: 'Delete task?',
-    message: '"$name" will be permanently removed.',
+    title: title,
+    message: message,
     actions: [
       AlertAction(
-        title: 'Cancel',
+        title: cancelLabel,
         style: AlertActionStyle.cancel,
         onPressed: () => finish(false),
       ),
       AlertAction(
-        title: 'Delete',
-        style: AlertActionStyle.destructive,
+        title: confirmLabel,
+        style: destructive
+            ? AlertActionStyle.destructive
+            : AlertActionStyle.primary,
         onPressed: () => finish(true),
       ),
     ],
