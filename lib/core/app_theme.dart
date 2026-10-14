@@ -17,7 +17,7 @@ class AppColors {
 
   static const CupertinoDynamicColor background =
       CupertinoDynamicColor.withBrightness(
-    color: Color(0xFFFFF4E6),
+    color: Color(0xFFF4DEC8),
     darkColor: Color(0xFF120C08),
   );
 
@@ -29,7 +29,7 @@ class AppColors {
 
   static const CupertinoDynamicColor glassBorder =
       CupertinoDynamicColor.withBrightness(
-    color: Color(0x14000000),
+    color: Color(0x228A4B14),
     darkColor: Color(0x1FFFFFFF),
   );
 
@@ -61,7 +61,7 @@ class AppBackdrop extends StatelessWidget {
           center: const Alignment(1.1, 0.0),
           radius: 0.8,
           colors: [
-            AppColors.orange.withValues(alpha: dark ? 0.16 : 0.18),
+            AppColors.orange.withValues(alpha: dark ? 0.16 : 0.28),
             AppColors.orange.withValues(alpha: 0),
           ],
         ),
