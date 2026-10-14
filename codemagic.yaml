@@ -1,0 +1,45 @@
+workflows:
+  ios-unsigned-ipa:
+    name: iOS unsigned IPA
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest        # iOS 26 SDK features need a recent Xcode
+      cocoapods: default
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+
+      - name: Generate launcher icons
+        script: dart run flutter_launcher_icons
+
+      - name: Build iOS app without code signing
+        script: |
+          flutter build ios --release --no-codesign
+
+      - name: Package unsigned .ipa
+        script: |
+          set -e
+          APP_PATH="build/ios/iphoneos/Runner.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Runner.app not found at $APP_PATH" && exit 1
+          fi
+          rm -rf build/ios/ipa Payload
+          mkdir -p build/ios/ipa Payload
+          cp -R "$APP_PATH" Payload/Runner.app
+          zip -qry build/ios/ipa/adaptive_tasks_unsigned.ipa Payload
+          rm -rf Payload
+          ls -lh build/ios/ipa
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+
+    # Uncomment to get the .ipa by email when the build finishes.
+    # publishing:
+    #   email:
+    #     recipients:
+    #       - jairusmaniago0204@gmail.com
+    #     notify:
+    #       success: true
+    #       failure: true
