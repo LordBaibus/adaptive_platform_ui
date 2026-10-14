@@ -44,7 +44,13 @@ class _TaskEditorState extends State<TaskEditor> {
   late final TextEditingController _description =
       TextEditingController(text: widget.task?.description ?? '');
   late DateTime _due = widget.task?.dueDate ?? dateOnly(DateTime.now());
-  late String _category = widget.task?.category ?? kCategories.last;
+  // A category that is not one of the presets is a custom one.
+  late bool _customCategory = widget.task != null &&
+      !kCategories.contains(widget.task!.category);
+  late String _category = widget.task?.category ?? kDefaultCategory;
+  late final TextEditingController _customController = TextEditingController(
+    text: _customCategory ? widget.task!.category : '',
+  );
   late TaskStatus _status = widget.task?.status ?? TaskStatus.todo;
   late int _progress = widget.task?.progress ?? 0;
   late int _hours = widget.task?.estimatedHours ?? 8;
@@ -55,6 +61,7 @@ class _TaskEditorState extends State<TaskEditor> {
   void dispose() {
     _title.dispose();
     _description.dispose();
+    _customController.dispose();
     super.dispose();
   }
 
@@ -79,6 +86,15 @@ class _TaskEditorState extends State<TaskEditor> {
       );
       return;
     }
+    final category = _customCategory ? _customController.text.trim() : _category;
+    if (category.isEmpty) {
+      AdaptiveSnackBar.show(
+        context,
+        message: 'Type a name for your custom category.',
+        type: AdaptiveSnackBarType.warning,
+      );
+      return;
+    }
     setState(() => _busy = true);
     try {
       final existing = widget.task;
@@ -93,7 +109,7 @@ class _TaskEditorState extends State<TaskEditor> {
             progress: _progress,
             estimatedHours: _hours,
             dueDate: _due,
-            category: _category,
+            category: category,
             isUrgent: _urgent,
             createdAt: DateTime.now(),
           ),
@@ -107,7 +123,7 @@ class _TaskEditorState extends State<TaskEditor> {
             progress: _progress,
             estimatedHours: _hours,
             dueDate: _due,
-            category: _category,
+            category: category,
             isUrgent: _urgent,
           ),
         );
@@ -199,16 +215,39 @@ class _TaskEditorState extends State<TaskEditor> {
               ),
               _label('Category'),
               GlassCard(
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (final c in kCategories)
-                      _CategoryChip(
-                        label: c,
-                        selected: c == _category,
-                        onTap: () => setState(() => _category = c),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final c in kCategories)
+                          _CategoryChip(
+                            label: c,
+                            selected: !_customCategory && c == _category,
+                            onTap: () => setState(() {
+                              _customCategory = false;
+                              _category = c;
+                            }),
+                          ),
+                        _CategoryChip(
+                          label: 'Custom',
+                          selected: _customCategory,
+                          onTap: () => setState(() => _customCategory = true),
+                        ),
+                      ],
+                    ),
+                    if (_customCategory) ...[
+                      const SizedBox(height: 12),
+                      AdaptiveTextField(
+                        controller: _customController,
+                        placeholder: 'Type your own category',
+                        maxLength: 24,
+                        autofocus: true,
+                        textCapitalization: TextCapitalization.words,
                       ),
+                    ],
                   ],
                 ),
               ),

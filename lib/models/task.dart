@@ -17,13 +17,20 @@ enum TaskStatus {
       );
 }
 
+/// Ready-made categories. Users can also type their own ("Custom").
 const List<String> kCategories = [
-  'E-Commerce App',
-  'Web Design',
-  'Logo',
-  'Web Development',
-  'App Development',
+  'Work',
+  'Study',
+  'Health',
+  'Personal',
+  'Home',
+  'Shopping',
+  'Finance',
+  'Social',
+  'Errands',
 ];
+
+const String kDefaultCategory = 'Personal';
 
 @immutable
 class Task {
@@ -36,7 +43,7 @@ class Task {
     this.status = TaskStatus.todo,
     this.progress = 0,
     this.estimatedHours = 8,
-    this.category = 'App Development',
+    this.category = kDefaultCategory,
     this.isUrgent = false,
   });
 
@@ -64,7 +71,7 @@ class Task {
         progress: (map['progress'] as num?)?.toInt() ?? 0,
         estimatedHours: (map['estimated_hours'] as num?)?.toInt() ?? 8,
         dueDate: DateTime.parse(map['due_date'] as String),
-        category: (map['category'] as String?) ?? 'App Development',
+        category: (map['category'] as String?) ?? kDefaultCategory,
         isUrgent: (map['is_urgent'] as bool?) ?? false,
         createdAt: DateTime.parse(map['created_at'] as String).toLocal(),
       );

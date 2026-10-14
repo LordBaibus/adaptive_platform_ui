@@ -12,7 +12,7 @@ create table if not exists public.tasks (
   progress        int  not null default 0 check (progress between 0 and 100),
   estimated_hours int  not null default 8 check (estimated_hours > 0),
   due_date        date not null default current_date,
-  category        text not null default 'App Development',
+  category        text not null default 'Personal',
   is_urgent       boolean not null default false,
   created_at      timestamptz not null default now()
 );
@@ -24,7 +24,8 @@ alter table public.tasks add column if not exists progress int not null default 
 alter table public.tasks add column if not exists estimated_hours int not null default 8
   check (estimated_hours > 0);
 alter table public.tasks add column if not exists due_date date not null default current_date;
-alter table public.tasks add column if not exists category text not null default 'App Development';
+alter table public.tasks add column if not exists category text not null default 'Personal';
+alter table public.tasks alter column category set default 'Personal';
 alter table public.tasks add column if not exists is_urgent boolean not null default false;
 
 create index if not exists tasks_user_due_idx
