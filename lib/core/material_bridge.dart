@@ -28,7 +28,7 @@ ThemeMode appThemeMode(bool dark) => dark ? ThemeMode.dark : ThemeMode.light;
 /// Material theme whose surfaces match [AppColors.background], so the bars and
 /// the page behind them are exactly the same colour.
 ThemeData appMaterialTheme({required bool dark}) {
-  final bg = dark ? const Color(0xFF120C08) : const Color(0xFFFFF4E6);
+  final bg = dark ? const Color(0xFF120C08) : const Color(0xFFF4DEC8);
   final text = dark ? const Color(0xFFFFFFFF) : const Color(0xFF2B1708);
   const clear = Color(0x00000000);
 
