@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/app_icons.dart';
+import '../core/chrome_insets.dart';
 import '../core/app_theme.dart';
 import '../core/device_layout.dart';
 import '../models/task.dart';
@@ -94,10 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: AppColors.background.resolveFrom(context),
             appBar: AdaptiveAppBar(title: task == null ? 'Create a Task' : 'Edit Task'),
             body: AppBackdrop(
-              child: TaskEditor(
-                controller: _tasks,
-                task: task,
-                onDone: () => navigator.pop(),
+              child: ChromeInsets(
+                bottomBar: false,
+                child: TaskEditor(
+                  controller: _tasks,
+                  task: task,
+                  onDone: () => navigator.pop(),
+                ),
               ),
             ),
           ),
@@ -217,6 +221,38 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : null,
       bottomNavigationBar: AdaptiveBottomNavigationBar(
+        // iOS: a larger, always-visible bar instead of the small floating
+        // native one. Android uses `items` below.
+        useNativeBottomBar: false,
+        cupertinoTabBar: CupertinoTabBar(
+          currentIndex: _tab,
+          onTap: (index) => setState(() => _tab = index),
+          backgroundColor: AppColors.background.resolveFrom(context),
+          border: Border(
+            top: BorderSide(color: AppColors.glassBorder.resolveFrom(context)),
+          ),
+          activeColor: AppColors.orange,
+          inactiveColor: AppColors.secondaryText(context),
+          iconSize: 30,
+          height: 68,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.house),
+              activeIcon: Icon(CupertinoIcons.house_fill),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.list_bullet),
+              activeIcon: Icon(CupertinoIcons.list_bullet),
+              label: 'My Task',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.person_crop_circle),
+              activeIcon: Icon(CupertinoIcons.person_crop_circle_fill),
+              label: 'Profile',
+            ),
+          ],
+        ),
         selectedIndex: _tab,
         onTap: (index) => setState(() => _tab = index),
         selectedItemColor: AppColors.orange,
@@ -236,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: AppBackdrop(child: _body()),
+      body: AppBackdrop(child: ChromeInsets(bottomBar: false, child: _body())),
     );
   }
 }
