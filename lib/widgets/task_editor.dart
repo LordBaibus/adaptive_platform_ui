@@ -45,12 +45,14 @@ class _TaskEditorState extends State<TaskEditor> {
       TextEditingController(text: widget.task?.description ?? '');
   late DateTime _due = widget.task?.dueDate ?? dateOnly(DateTime.now());
   // A category that is not one of the presets is a custom one.
-  late bool _customCategory = widget.task != null &&
-      !kCategories.contains(widget.task!.category);
+  late bool _customCategory = _isCustom(widget.task?.category);
   late String _category = widget.task?.category ?? kDefaultCategory;
   late final TextEditingController _customController = TextEditingController(
-    text: _customCategory ? widget.task!.category : '',
+    text: _isCustom(widget.task?.category) ? widget.task!.category : '',
   );
+
+  static bool _isCustom(String? category) =>
+      category != null && !kCategories.contains(category);
   late TaskStatus _status = widget.task?.status ?? TaskStatus.todo;
   late int _progress = widget.task?.progress ?? 0;
   late int _hours = widget.task?.estimatedHours ?? 8;

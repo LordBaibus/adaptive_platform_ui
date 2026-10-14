@@ -168,18 +168,21 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.background.resolveFrom(context),
       appBar: AdaptiveAppBar(
         title: titles[_tab],
+        tintColor: CupertinoColors.label.resolveFrom(context),
         actions: [
           // iOS / macOS: "+" lives in the toolbar. Others get a FAB below.
           if (onTasks && isCupertinoPlatform)
             AdaptiveAppBarAction(
               iosSymbol: AppIcons.addSymbol,
               icon: AppIcons.add,
+              tintColor: CupertinoColors.label.resolveFrom(context),
               onPressed: _newTask,
             ),
           // Action menu (popup) in the app bar.
           AdaptiveAppBarAction(
             iosSymbol: AppIcons.moreSymbol,
             icon: AppIcons.more,
+            tintColor: CupertinoColors.label.resolveFrom(context),
             menuItems: [
               AdaptivePopupMenuItem<String>(
                 label: 'Refresh',
@@ -215,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedIndex: _tab,
         onTap: (index) => setState(() => _tab = index),
         selectedItemColor: AppColors.orange,
+        unselectedItemColor: AppColors.secondaryText(context),
         items: [
           AdaptiveNavigationDestination(
             icon: AppIcons.pick(AppIcons.homeSymbol, AppIcons.home),

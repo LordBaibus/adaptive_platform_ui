@@ -56,10 +56,29 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdaptiveApp(
       title: 'Adaptive Tasks',
-      // Default text colour follows the forced brightness on every platform.
-      builder: (context, child) => DefaultTextStyle.merge(
-        style: TextStyle(color: CupertinoColors.label.resolveFrom(context)),
-        child: child ?? const SizedBox.shrink(),
+      // Applies dark / light to every screen (including pushed ones) the same
+      // way the login screen does: override the brightness that the
+      // Cupertino colours, glass cards and text resolve against.
+      builder: (context, child) => ValueListenableBuilder<bool>(
+        valueListenable: AppSettings.darkMode,
+        builder: (context, dark, _) {
+          final brightness = dark ? Brightness.dark : Brightness.light;
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(platformBrightness: brightness),
+            child: CupertinoTheme(
+              data: CupertinoTheme.of(context).copyWith(
+                brightness: brightness,
+                primaryColor: AppColors.orange,
+              ),
+              child: Builder(
+                builder: (context) => DefaultTextStyle.merge(
+                  style: TextStyle(color: CupertinoColors.label.resolveFrom(context)),
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          );
+        },
       ),
       cupertinoLightTheme: const CupertinoThemeData(
         primaryColor: AppColors.orange,
