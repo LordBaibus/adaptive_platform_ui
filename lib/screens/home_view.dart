@@ -104,6 +104,7 @@ class HomeView extends StatelessWidget {
                             onPressed: onCreate,
                             icon: AppIcons.add,
                             color: AppColors.orange,
+                            iconColor: CupertinoColors.white,
                             size: AdaptiveButtonSize.large,
                           ),
                         ),
