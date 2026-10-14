@@ -211,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: _newTask,
               backgroundColor: AppColors.orange,
               foregroundColor: CupertinoColors.white,
-              child: Icon(AppIcons.add),
+              child: Icon(AppIcons.add, color: CupertinoColors.white),
             )
           : null,
       bottomNavigationBar: AdaptiveBottomNavigationBar(

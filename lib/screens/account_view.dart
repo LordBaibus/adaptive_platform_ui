@@ -82,6 +82,7 @@ class AccountView extends StatelessWidget {
                 label: 'Sign out',
                 style: AdaptiveButtonStyle.tinted,
                 color: CupertinoColors.destructiveRed,
+                textColor: CupertinoColors.destructiveRed,
                 onPressed: () {
                   Supabase.instance.client.auth.signOut();
                 },

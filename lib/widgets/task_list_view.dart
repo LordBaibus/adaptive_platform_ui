@@ -52,6 +52,7 @@ class _TaskListViewState extends State<TaskListView> {
         action: AdaptiveButton(
           label: 'Try again',
           color: AppColors.orange,
+          textColor: CupertinoColors.white,
           onPressed: controller.load,
         ),
       );

@@ -310,6 +310,7 @@ class _TaskEditorState extends State<TaskEditor> {
               AdaptiveButton(
                 label: _busy ? 'Saving…' : (isNew ? 'Create Task' : 'Save changes'),
                 color: AppColors.orange,
+                textColor: CupertinoColors.white,
                 onPressed: _busy ? null : _save,
               ),
               if (!isNew) ...[
@@ -318,6 +319,7 @@ class _TaskEditorState extends State<TaskEditor> {
                   label: 'Delete task',
                   style: AdaptiveButtonStyle.tinted,
                   color: CupertinoColors.destructiveRed,
+                  textColor: CupertinoColors.destructiveRed,
                   onPressed: _busy ? null : _delete,
                 ),
               ],
