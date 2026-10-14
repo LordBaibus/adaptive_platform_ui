@@ -89,6 +89,8 @@ class _TaskEditorState extends State<TaskEditor> {
       _status = TaskStatus.completed;
       _progress = 100;
     });
+    // Save straight away; the editor closes once the save succeeds.
+    await _save();
   }
 
   Future<void> _save() async {
