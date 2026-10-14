@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../core/app_icons.dart';
 import '../core/app_theme.dart';
 import '../core/formatters.dart';
+import '../core/ph_time.dart';
 
 /// Month grid for picking a due date (built from plain widgets).
 class MonthCalendar extends StatefulWidget {
@@ -10,9 +11,13 @@ class MonthCalendar extends StatefulWidget {
     super.key,
     required this.selected,
     required this.onSelected,
+    this.firstDate,
   });
 
   final DateTime selected;
+
+  /// Earliest day that can be picked; earlier days are greyed out.
+  final DateTime? firstDate;
   final ValueChanged<DateTime> onSelected;
 
   @override
@@ -31,12 +36,19 @@ class _MonthCalendarState extends State<MonthCalendar> {
   void _shift(int months) =>
       setState(() => _month = DateTime(_month.year, _month.month + months));
 
+  /// Can the user go back a month without leaving the allowed range?
+  bool get _canGoBack {
+    final first = widget.firstDate;
+    if (first == null) return true;
+    return DateTime(_month.year, _month.month).isAfter(DateTime(first.year, first.month));
+  }
+
   @override
   Widget build(BuildContext context) {
     final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
     final leading = _month.weekday % 7; // Sunday = 0
     final cellCount = ((leading + daysInMonth + 6) ~/ 7) * 7;
-    final today = dateOnly(DateTime.now());
+    final today = phToday();
     final secondary = AppColors.secondaryText(context);
 
     return GlassCard(
@@ -45,7 +57,10 @@ class _MonthCalendarState extends State<MonthCalendar> {
         children: [
           Row(
             children: [
-              _NavButton(icon: AppIcons.chevronLeft, onTap: () => _shift(-1)),
+              _NavButton(
+                icon: AppIcons.chevronLeft,
+                onTap: _canGoBack ? () => _shift(-1) : null,
+              ),
               Expanded(
                 child: Text(
                   '${_monthNames[_month.month - 1]} ${_month.year}',
@@ -88,10 +103,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
     final date = DateTime(_month.year, _month.month, day);
     final isSelected = isSameDay(date, widget.selected);
     final isToday = isSameDay(date, today);
+    final first = widget.firstDate;
+    final disabled = first != null && date.isBefore(dateOnly(first));
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => widget.onSelected(date),
+      onTap: disabled ? null : () => widget.onSelected(date),
       child: SizedBox(
         height: 40,
         child: Center(
@@ -111,7 +128,9 @@ class _MonthCalendarState extends State<MonthCalendar> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                color: isSelected ? CupertinoColors.white : null,
+                color: isSelected
+                    ? CupertinoColors.white
+                    : (disabled ? AppColors.secondaryText(context).withValues(alpha: 0.35) : null),
               ),
             ),
           ),
@@ -122,10 +141,10 @@ class _MonthCalendarState extends State<MonthCalendar> {
 }
 
 class _NavButton extends StatelessWidget {
-  const _NavButton({required this.icon, required this.onTap});
+  const _NavButton({required this.icon, this.onTap});
 
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +153,13 @@ class _NavButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: Icon(icon, size: 18, color: AppColors.orange),
+        child: Icon(
+          icon,
+          size: 18,
+          color: onTap == null
+              ? AppColors.secondaryText(context).withValues(alpha: 0.35)
+              : AppColors.orange,
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/app_theme.dart';
 import '../core/formatters.dart';
+import '../core/ph_time.dart';
 import '../core/user_info.dart';
 import '../services/app_settings.dart';
 import '../widgets/avatar.dart';
@@ -18,7 +19,8 @@ class AccountView extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
     final name = displayName(user);
-    final joined = DateTime.tryParse(user?.createdAt ?? '')?.toLocal();
+    final createdAt = DateTime.tryParse(user?.createdAt ?? '');
+    final joined = createdAt == null ? null : toPhTime(createdAt);
     final secondary = AppColors.secondaryText(context);
 
     Widget row(String label, String value, {bool last = false}) => AdaptiveListTile(

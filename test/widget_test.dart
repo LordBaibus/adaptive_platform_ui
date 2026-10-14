@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:adaptive_ui/core/device_layout.dart';
+import 'package:adaptive_ui/core/ph_time.dart';
 import 'package:adaptive_ui/models/task.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -109,5 +110,16 @@ void main() {
     expect(task.isUrgent, isTrue);
     expect(task.toMap()['due_date'], '2026-10-14');
     expect(task.toMap()['status'], 'in_process');
+  });
+
+  test('toPhTime converts a UTC instant to Philippine time (UTC+8)', () {
+    final ph = toPhTime(DateTime.utc(2026, 10, 14, 20, 30));
+    expect(ph, DateTime(2026, 10, 15, 4, 30));
+  });
+
+  test('phToday has no time part', () {
+    final today = phToday();
+    expect(today.hour, 0);
+    expect(today.minute, 0);
   });
 }

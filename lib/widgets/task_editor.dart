@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../core/app_theme.dart';
 import '../core/formatters.dart';
+import '../core/ph_time.dart';
 import '../models/task.dart';
 import '../services/task_controller.dart';
 import 'dialogs.dart';
@@ -43,7 +44,7 @@ class _TaskEditorState extends State<TaskEditor> {
       TextEditingController(text: widget.task?.title ?? '');
   late final TextEditingController _description =
       TextEditingController(text: widget.task?.description ?? '');
-  late DateTime _due = widget.task?.dueDate ?? dateOnly(DateTime.now());
+  late DateTime _due = widget.task?.dueDate ?? phToday();
   // A category that is not one of the presets is a custom one.
   late bool _customCategory = _isCustom(widget.task?.category);
   late String _category = widget.task?.category ?? kDefaultCategory;
@@ -88,6 +89,16 @@ class _TaskEditorState extends State<TaskEditor> {
       );
       return;
     }
+    // No past dates (Philippine time). An existing task may keep its old date.
+    final unchangedDate = widget.task != null && _due == widget.task!.dueDate;
+    if (_due.isBefore(phToday()) && !unchangedDate) {
+      AdaptiveSnackBar.show(
+        context,
+        message: 'Pick today or a later date.',
+        type: AdaptiveSnackBarType.warning,
+      );
+      return;
+    }
     final category = _customCategory ? _customController.text.trim() : _category;
     if (category.isEmpty) {
       AdaptiveSnackBar.show(
@@ -113,7 +124,7 @@ class _TaskEditorState extends State<TaskEditor> {
             dueDate: _due,
             category: category,
             isUrgent: _urgent,
-            createdAt: DateTime.now(),
+            createdAt: phNow(),
           ),
         );
       } else {
@@ -213,6 +224,7 @@ class _TaskEditorState extends State<TaskEditor> {
               _label('Due date  ·  ${formatDay(_due)}'),
               MonthCalendar(
                 selected: _due,
+                firstDate: phToday(),
                 onSelected: (date) => setState(() => _due = date),
               ),
               _label('Category'),

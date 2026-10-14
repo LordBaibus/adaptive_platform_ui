@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../core/ph_time.dart';
+
 enum TaskStatus {
   todo('todo', 'To Do'),
   inProcess('in_process', 'In process'),
@@ -73,7 +75,7 @@ class Task {
         dueDate: DateTime.parse(map['due_date'] as String),
         category: (map['category'] as String?) ?? kDefaultCategory,
         isUrgent: (map['is_urgent'] as bool?) ?? false,
-        createdAt: DateTime.parse(map['created_at'] as String).toLocal(),
+        createdAt: toPhTime(DateTime.parse(map['created_at'] as String)),
       );
 
   /// Columns written on insert / update.
